@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Management Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeIn 0.5s ease-out; }
+    .chat-box { display: none; }
+    .chat-box.active { display: block; }
+    .dark-mode { background-color: #1a202c; color: #e2e8f0; }
+    .dark-mode .bg-white { background-color: #2d3748; color: #e2e8f0; }
+    .dark-mode .text-gray-800 { color: #e2e8f0; }
+    .dark-mode .bg-blue-600 { background-color: #4a5568; }
+    .dark-mode .bg-blue-500 { background-color: #4a5568; }
+  </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <!-- Navbar -->
+  <nav class="bg-blue-600 text-white p-4 shadow-lg">
+    <div class="container mx-auto flex justify-between items-center">
+      <h1 class="text-2xl font-bold">TaskMaster</h1>
+      <ul class="flex space-x-4">
+        <li><a href="#" class="hover:text-blue-200" onclick="showDetails('dashboard')">Dashboard</a></li>
+        <li><a href="#" class="hover:text-blue-200" onclick="showDetails('tasks')">Tasks</a></li>
+        <li><a href="#" class="hover:text-blue-200" onclick="showDetails('analytics')">Analytics</a></li>
+        <li><a href="#" class="hover:text-blue-200" onclick="showDetails('settings')">Settings</a></li>
+        <li><button onclick="toggleDarkMode()" class="hover:text-blue-200">🌙</button></li>
+        <li>
+          <div class="relative">
+            <button onclick="toggleNotifications()" class="hover:text-blue-200">🔔</button>
+            <div id="notificationDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg hidden">
+              <div class="p-4">
+                <p class="text-gray-800">No new notifications.</p>
+              </div>
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Header -->
+  <header class="bg-blue-500 text-white py-12">
+    <div class="container mx-auto text-center fade-in">
+      <h2 class="text-4xl font-bold">Welcome Back, John!</h2>
+      <p class="mt-2">Here's an overview of your tasks and progress.</p>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto mt-8 p-4">
+    <!-- Details Section -->
+    <div id="details" class="bg-white p-6 rounded-lg shadow-md mb-8 fade-in">
+      <h3 class="text-xl font-semibold">Dashboard Overview</h3>
+      <p class="mt-2 text-gray-600">Select an option from the navbar to see details.</p>
+    </div>
+
+    <!-- Grid Layout -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- Task Overview Card -->
+      <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow fade-in">
+        <h3 class="text-xl font-semibold">Task Overview</h3>
+        <p class="mt-2 text-gray-600">5 tasks completed, 3 in progress.</p>
+        <div class="mt-4 h-2 bg-gray-200 rounded-full">
+          <div class="h-2 bg-blue-500 rounded-full" style="width: 70%;"></div>
+        </div>
+      </div>
+
+      <!-- Upcoming Deadlines -->
+      <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow fade-in">
+        <h3 class="text-xl font-semibold">Upcoming Deadlines</h3>
+        <ul class="mt-4 space-y-2">
+          <li class="flex justify-between">
+            <span>Project Proposal</span>
+            <span class="text-red-500">2 days left</span>
+          </li>
+          <li class="flex justify-between">
+            <span>Client Meeting</span>
+            <span class="text-yellow-500">5 days left</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow fade-in">
+        <h3 class="text-xl font-semibold">Recent Activity</h3>
+        <ul class="mt-4 space-y-2">
+          <li>Task "Design Mockups" completed.</li>
+          <li>New task "Code Review" added.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Task List -->
+    <div class="mt-8 bg-white p-6 rounded-lg shadow-md fade-in">
+      <h3 class="text-xl font-semibold">Task List</h3>
+      <ul id="taskList" class="mt-4 space-y-2">
+        <li class="flex items-center">
+          <input type="checkbox" class="mr-2" onchange="toggleTaskCompletion(this)">
+          <span>Design Mockups</span>
+        </li>
+        <li class="flex items-center">
+          <input type="checkbox" class="mr-2" onchange="toggleTaskCompletion(this)">
+          <span>Code Review</span>
+        </li>
+      </ul>
+      <button onclick="openTaskModal()" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Add Task</button>
+    </div>
+
+    <!-- Article Section -->
+    <article class="mt-8 bg-white p-6 rounded-lg shadow-md fade-in">
+      <h2 class="text-2xl font-bold">Tips for Productivity</h2>
+      <p class="mt-4 text-gray-700">
+        Staying productive can be challenging, but with the right tools and mindset, you can achieve your goals efficiently. Break tasks into smaller chunks, prioritize them, and take regular breaks to maintain focus.
+      </p>
+    </article>
+  </main>
+
+  <!-- Task Creation Modal -->
+  <div id="taskModal" class="fixed inset-0 bg-black bg-opacity-50 hidden justify-center items-center">
+    <div class="bg-white p-6 rounded-lg w-96">
+      <h3 class="text-xl font-semibold">Add New Task</h3>
+      <input id="taskInput" type="text" class="w-full mt-4 p-2 border rounded-lg" placeholder="Task name">
+      <div class="mt-4 flex justify-end space-x-2">
+        <button onclick="closeTaskModal()" class="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600">Cancel</button>
+        <button onclick="addTask()" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat Widget -->
+  <div class="fixed bottom-4 right-4">
+    <button onclick="toggleChat()" class="bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-colors">
+      💬
+    </button>
+    <div id="chatBox" class="chat-box bg-white p-6 rounded-lg shadow-md mt-4 w-80">
+      <h3 class="text-xl font-semibold">Chat Support</h3>
+      <div id="chatMessages" class="mt-4 h-48 overflow-y-auto">
+        <p class="text-gray-600">Welcome to TaskMaster Chat! How can we help you?</p>
+      </div>
+      <div class="flex mt-4">
+        <input id="chatInput" type="text" class="w-full p-2 border rounded-lg" placeholder="Type a message...">
+        <button onclick="sendMessage()" class="ml-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-blue-600 text-white mt-8 py-6">
+    <div class="container mx-auto text-center">
+      <p>&copy; 2023 TaskMaster. All rights reserved.</p>
+      <p class="mt-2">Made with ❤ by Tirth Patel</p>
+    </div>
+  </footer>
+
+  <script>
+    // Navbar Functionality
+    function showDetails(section) {
+      const detailsDiv = document.getElementById('details');
+      let content = '';
+
+      switch (section) {
+        case 'dashboard':
+          content = `
+            <h3 class="text-xl font-semibold">Dashboard Overview</h3>
+            <p class="mt-2 text-gray-600">Here's a summary of your tasks and progress.</p>
+          `;
+          break;
+        case 'tasks':
+          content = `
+            <h3 class="text-xl font-semibold">Tasks</h3>
+            <p class="mt-2 text-gray-600">You have 8 tasks in total. 5 completed, 3 in progress.</p>
+          `;
+          break;
+        case 'analytics':
+          content = `
+            <h3 class="text-xl font-semibold">Analytics</h3>
+            <p class="mt-2 text-gray-600">Your productivity score is 85% this week.</p>
+          `;
+          break;
+        case 'settings':
+          content = `
+            <h3 class="text-xl font-semibold">Settings</h3>
+            <p class="mt-2 text-gray-600">Customize your dashboard and preferences here.</p>
+          `;
+          break;
+        default:
+          content = `
+            <h3 class="text-xl font-semibold">Dashboard Overview</h3>
+            <p class="mt-2 text-gray-600">Select an option from the navbar to see details.</p>
+          `;
+      }
+
+      detailsDiv.innerHTML = content;
+    }
+
+    // Chat Widget Functionality
+    function toggleChat() {
+      const chatBox = document.getElementById('chatBox');
+      chatBox.classList.toggle('active');
+    }
+
+    function sendMessage() {
+      const chatInput = document.getElementById('chatInput');
+      const chatMessages = document.getElementById('chatMessages');
+
+      if (chatInput.value.trim() !== '') {
+        const message = `<p class="text-gray-800">You: ${chatInput.value}</p>`;
+        chatMessages.innerHTML += message;
+        chatInput.value = '';
+        chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll to bottom
+      }
+    }
+
+    // Task List Functionality
+    function toggleTaskCompletion(checkbox) {
+      const taskText = checkbox.nextElementSibling;
+      if (checkbox.checked) {
+        taskText.style.textDecoration = 'line-through';
+      } else {
+        taskText.style.textDecoration = 'none';
+      }
+    }
+
+    function openTaskModal() {
+      document.getElementById('taskModal').classList.remove('hidden');
+    }
+
+    function closeTaskModal() {
+      document.getElementById('taskModal').classList.add('hidden');
+    }
+
+    function addTask() {
+      const taskInput = document.getElementById('taskInput');
+      const taskList = document.getElementById('taskList');
+
+      if (taskInput.value.trim() !== '') {
+        const newTask = `
+          <li class="flex items-center">
+            <input type="checkbox" class="mr-2" onchange="toggleTaskCompletion(this)">
+            <span>${taskInput.value}</span>
+          </li>
+        `;
+        taskList.innerHTML += newTask;
+        taskInput.value = '';
+        closeTaskModal();
+      }
+    }
+
+    // Notification Dropdown
+    function toggleNotifications() {
+      const dropdown = document.getElementById('notificationDropdown');
+      dropdown.classList.toggle('hidden');
+    }
+
+    // Dark Mode Toggle
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+    }
+  </script>
+</body>
+</html>
